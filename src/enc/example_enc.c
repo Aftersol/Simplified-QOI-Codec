@@ -2,8 +2,6 @@
 
     -- example_enc.c -- Reference QOI encoding usage of this library
 
-    (c) 2022 Aftersol - See LICENSE.MD for more information
-
 */
 
 #include <stdio.h>

@@ -36,8 +36,6 @@
         // 1 = all channels linear
     };
 
-    (c) 2022 Aftersol - See LICENSE.MD for more information
-
 */
 
 /*
