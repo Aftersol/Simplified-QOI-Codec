@@ -115,7 +115,7 @@ int main(int argc, char* argv[])
         all pixels are done decompressing */
     while (!qoi_dec_done(&dec))
     {
-        px = qoi_decode_chunk(&dec, px);
+        px = qoi_decode_chunk(&dec);
 
         /*  Do something with the pixel values below */
 

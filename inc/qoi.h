@@ -100,6 +100,7 @@ typedef union
         uint8_t alpha;
     };
     uint8_t channels[4];
+    uint32_t concatenated_pixel_values;
 } qoi_pixel_t;
 
 typedef struct
@@ -133,6 +134,8 @@ typedef struct
         position formed by a hash function of the color value. 
     */
     qoi_pixel_t buffer[64];
+
+    qoi_pixel_t prev_pixel;
 
     size_t len;
 
@@ -170,7 +173,7 @@ bool read_qoi_header(qoi_desc_t *desc, void* data);
 
 bool qoi_dec_init(qoi_dec_t* dec, void* data, size_t len);
 bool qoi_dec_done(qoi_dec_t* dec);
-qoi_pixel_t qoi_decode_chunk(qoi_dec_t* dec, qoi_pixel_t pixel);
+qoi_pixel_t qoi_decode_chunk(qoi_dec_t* dec);
 
 /* Swap a 32 bit word between endianess */
 static inline void qoi_swap_bytes_32(void* byte)
@@ -386,6 +389,8 @@ bool qoi_dec_init(qoi_dec_t* dec, void* data, size_t len)
     */
     for (uint8_t element = 0; element < 64; element++)
         qoi_initalize_pixel(&dec->buffer[element]);
+
+    qoi_set_pixel_rgba(&dec->prev_pixel, 0, 0, 0, 255);
     
     dec->run = 0;
     dec->pad = 0;
@@ -579,9 +584,8 @@ void qoi_encode_chunk(qoi_desc_t *desc, qoi_enc_t *enc, void *qoi_pixel_bytes)
     (image width) * (image height) * (amount of channels in a pixel) = bytes required to store decoded image
 */
 
-qoi_pixel_t qoi_decode_chunk(qoi_dec_t* dec, qoi_pixel_t pixel)
+qoi_pixel_t qoi_decode_chunk(qoi_dec_t* dec)
 {
-    qoi_pixel_t px = pixel; /* modified pixel to be returned */
 
     if (dec->run > 0)
         dec->run--;
@@ -597,17 +601,17 @@ qoi_pixel_t qoi_decode_chunk(qoi_dec_t* dec, qoi_pixel_t pixel)
 
         if (tag == QOI_OP_RGB) /* RGB pixel */
         {
-            px.red = dec->offset[1];
-            px.green = dec->offset[2];
-            px.blue = dec->offset[3];
+            dec->prev_pixel.red = dec->offset[1];
+            dec->prev_pixel.green = dec->offset[2];
+            dec->prev_pixel.blue = dec->offset[3];
             dec->offset += 4;
         }
         else if (tag == QOI_OP_RGBA) /* RGBA pixel */
         {
-            px.red = dec->offset[1];
-            px.green = dec->offset[2];
-            px.blue = dec->offset[3];
-            px.alpha = dec->offset[4];
+            dec->prev_pixel.red = dec->offset[1];
+            dec->prev_pixel.green = dec->offset[2];
+            dec->prev_pixel.blue = dec->offset[3];
+            dec->prev_pixel.alpha = dec->offset[4];
             dec->offset += 5;
         }
         else
@@ -618,7 +622,7 @@ qoi_pixel_t qoi_decode_chunk(qoi_dec_t* dec, qoi_pixel_t pixel)
             {
                 case QOI_OP_INDEX:
                 {
-                    px = dec->buffer[tag & QOI_TAG_MASK];
+                    dec->prev_pixel = dec->buffer[tag & QOI_TAG_MASK];
                     dec->offset += 1;
 
                     break;
@@ -630,9 +634,9 @@ qoi_pixel_t qoi_decode_chunk(qoi_dec_t* dec, qoi_pixel_t pixel)
                     uint8_t green_diff = ((diff >> 2) & 0x03) - 2;
                     uint8_t blue_diff = (diff & 0x03) - 2;
 
-                    px.red += red_diff;
-                    px.green += green_diff;
-                    px.blue += blue_diff;
+                    dec->prev_pixel.red += red_diff;
+                    dec->prev_pixel.green += green_diff;
+                    dec->prev_pixel.blue += blue_diff;
                     dec->offset += 1;
 
                     break;
@@ -641,9 +645,9 @@ qoi_pixel_t qoi_decode_chunk(qoi_dec_t* dec, qoi_pixel_t pixel)
                 {
                     uint8_t lumaGreen = (tag & QOI_TAG_MASK) - 32;
 
-                    px.red += lumaGreen + ((dec->offset[1] & 0xF0) >> 4) - 8;
-                    px.green += lumaGreen;
-                    px.blue += lumaGreen + (dec->offset[1] & 0x0F) - 8;
+                    dec->prev_pixel.red += lumaGreen + ((dec->offset[1] & 0xF0) >> 4) - 8;
+                    dec->prev_pixel.green += lumaGreen;
+                    dec->prev_pixel.blue += lumaGreen + (dec->offset[1] & 0x0F) - 8;
 
                     dec->offset += 2;
 
@@ -665,10 +669,10 @@ qoi_pixel_t qoi_decode_chunk(qoi_dec_t* dec, qoi_pixel_t pixel)
             }           
         }
 
-        dec->buffer[qoi_get_index_position(px)] = px;           
+        dec->buffer[qoi_get_index_position(dec->prev_pixel)] = dec->prev_pixel;           
     }
     
-    return px;
+    return dec->prev_pixel;
 }
 
 #ifdef __cplusplus
