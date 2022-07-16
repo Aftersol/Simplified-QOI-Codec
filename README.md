@@ -45,8 +45,13 @@ Define the following below before you include *qoi.h* library in **one** of your
 		pixel_seek += desc.channels;
 	}
 
+	/* 
+		Write the QOI file after encoding or do something else
+		or do something else after encoding
+	 */
 ### Decoder
 	/* After reading a QOI file and placed in buffer */
+	
 	qoi_desc_t desc;
 	qoi_dec_T dec;
 	qoi_pixel_t px;
@@ -92,6 +97,7 @@ Define the following below before you include *qoi.h* library in **one** of your
 		
 		seek += desc.channels;
 	}
+	
 	/* Use the pixels however you want after this code */
 
 ## How to Run Example Programs
@@ -109,7 +115,8 @@ This program only outputs raw RGB or RGBA files depending on the amount of chann
 
 	qoi_dec <input file> <output file>
 
-## QOI References
+## References
+Thank you to the authors of the source code being used for inspiration for this source code
 ### Official QOI References
 - [QOI Reference Implementation (phoboslab)](https://github.com/phoboslab/qoi)
 - [QOI Specification](https://qoiformat.org/qoi-specification.pdf)
@@ -120,3 +127,5 @@ This program only outputs raw RGB or RGBA files depending on the amount of chann
 - [FFmpeg](https://github.com/FFmpeg/FFmpeg)
 	- [Encoder](https://github.com/FFmpeg/FFmpeg/blob/master/libavcodec/qoienc.c)
 	- [Decoder](https://github.com/FFmpeg/FFmpeg/blob/master/libavcodec/qoidec.c)
+### Others
+- [Byteswap code](https://stackoverflow.com/a/4240014)
