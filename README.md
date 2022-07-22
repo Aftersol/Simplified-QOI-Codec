@@ -1,4 +1,4 @@
-# Header-Only QOI Codec Library
+# Simplified QOI Codec Library
 A one header file library for encoding and decoding QOI files in a stream.
 
 # Features

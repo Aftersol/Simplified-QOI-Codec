@@ -40,18 +40,18 @@
 
 /*
 
-    Define QOI_IMPLEMENTATION in only "one" of your source code files (.c, .cpp .cxx), not your header files
+    Define SIMPLIFIED_QOI_IMPLEMENTATION in only "one" of your source code files (.c, .cpp .cxx), not your header files
     before you include this library to create this implementation
 
-    #define QOI_IMPLEMENTATION
+    #define SIMPLIFIED_QOI_IMPLEMENTATION
     #include "qoi.h"
 
 */
 
-#ifndef QOI_H_IMPLEMENTATION
-#define QOI_H_IMPLEMENTATION
+#ifndef SIMPLIFIED_QOI_H_IMPLEMENTATION
+#define SIMPLIFIED_QOI_H_IMPLEMENTATION
 
-#ifdef QOI_IMPLEMENTATION
+#ifdef SIMPLIFIED_QOI_IMPLEMENTATION
 
 #ifdef __cplusplus
 extern "C" {
@@ -353,7 +353,7 @@ bool qoi_enc_init(qoi_desc_t* desc, qoi_enc_t* enc, void* data)
     for (uint8_t element = 0; element < 64; element++)
         qoi_initalize_pixel(&enc->buffer[element]);
 
-    enc->len = desc->width * desc->height;
+    enc->len = (size_t)desc->width * (size_t)desc->height;
 
     enc->pad = 0;
     enc->run = 0;
@@ -679,6 +679,6 @@ qoi_pixel_t qoi_decode_chunk(qoi_dec_t* dec)
 }
 #endif
 
-#endif /* QOI_IMPLEMENTATION */
+#endif /* SIMPLIFIED_QOI_IMPLEMENTATION */
 
-#endif /* QOI_H_IMPLEMENTATION */
+#endif /* SIMPLIFIED_QOI_H_IMPLEMENTATION */
