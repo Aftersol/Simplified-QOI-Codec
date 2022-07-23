@@ -14,7 +14,7 @@ Place the *qoi.h* file into your project folder preferably in your project's inc
 
 Define the following below before you include *qoi.h* library in **one** of your source code file
 
-	#define  QOI_IMPLEMENTATION
+	#define  SIMPLIFIED_QOI_IMPLEMENTATION
 	#include "qoi.h"
 	
 ## Minimal implementation
