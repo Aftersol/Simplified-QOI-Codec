@@ -69,15 +69,15 @@ Define the following below before you include *qoi.h* library in **one** of your
 		return;
 	}
 	
-	rawImageLength = (size_t)desc.width * (size_t)desc.height * (size_t)desc.channels;
+	raw_image_length = (size_t)desc.width * (size_t)desc.height * (size_t)desc.channels;
 
 	seek = 0;
-	if (rawImageLength == 0)
+	if (raw_image_length == 0)
 		return;
 
 	qoi_dec_init(&dec, qoi_bytes, buffer_size);
 	/* Creates a blank image for the decoder to work on */
-	bytes = (unsigned  char*)malloc(rawImageLength * sizeof(unsigned  char) + 4);
+	bytes = (unsigned char*)malloc(raw_image_length * sizeof(unsigned char) + 4);
 
 	if (!bytes)
 		return;

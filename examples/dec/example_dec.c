@@ -9,7 +9,7 @@
 #include <string.h>
 
 #define SIMPLIFIED_QOI_IMPLEMENTATION
-#include "qoi.h"
+#include "sQOI.h"
 
 void print_help()
 {
@@ -24,7 +24,7 @@ int main(int argc, char* argv[])
     qoi_pixel_t px;
 
     unsigned char* qoi_bytes, *bytes;
-    size_t rawImageLength, seek, buffer_size;
+    size_t raw_image_length, seek, buffer_size;
 
     FILE* fp;
 
@@ -91,10 +91,10 @@ int main(int argc, char* argv[])
     printf("Number of channels: %u\n", desc.channels);
     printf("Colorspace: %u\n", desc.colorspace);
 
-    rawImageLength = (size_t)desc.width * (size_t)desc.height * (size_t)desc.channels;
+    raw_image_length = (size_t)desc.width * (size_t)desc.height * (size_t)desc.channels;
     seek = 0;
 
-    if (rawImageLength == 0)
+    if (raw_image_length == 0)
     {
         fclose(fp);
         return 2;
@@ -103,7 +103,7 @@ int main(int argc, char* argv[])
     qoi_dec_init(&dec, qoi_bytes, buffer_size);
 
     /* Creates a blank image for the decoder to work on */
-    bytes = (unsigned char*)malloc(rawImageLength * sizeof(unsigned char) + 4);
+    bytes = (unsigned char*)malloc(raw_image_length * sizeof(unsigned char) + 4);
     if (!bytes)
     {
         return 3;
@@ -139,7 +139,7 @@ int main(int argc, char* argv[])
         return 4;
     }
 
-    fwrite(bytes, 1, rawImageLength, fp);
+    fwrite(bytes, 1, raw_image_length, fp);
 
     fclose(fp);
 

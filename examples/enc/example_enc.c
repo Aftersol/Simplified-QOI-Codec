@@ -9,7 +9,7 @@
 #include <string.h>
 
 #define SIMPLIFIED_QOI_IMPLEMENTATION
-#include "qoi.h"
+#include "sQOI.h"
 
 void print_help()
 {
