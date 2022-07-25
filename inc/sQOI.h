@@ -186,8 +186,8 @@ static inline void qoi_swap_bytes_32(void* byte)
     *byte_ptr = __builtin_bswap32(*byte_ptr);
 
     #else
-    const uint32_t value = *byte;
-    *byte_ptr = ((value >> 24) & 0xFF | (value << 8) & 0xFF0000 | (value >> 8) & 0xFF00 | (value >> 24) & 0xFF000000)
+    const uint32_t value = *byte_ptr;
+    *byte_ptr = ((value >> 24) & 0xFF | (value << 8) & 0xFF0000 | (value >> 8) & 0xFF00 | (value >> 24) & 0xFF000000);
     #endif
 }
 
