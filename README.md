@@ -106,14 +106,13 @@ Define the following below before you include *qoi.h* library in **one** of your
     qoi_enc <input file> <width> <height> <channels> <colorspace> <output file>
 Input file must be raw RGB or RGBA file
 
-## Software Requirements
- - C99 compiler or C++ compiler
- - [CMake 3.1](https://cmake.org/)
-
 ### Decoder
 This program only outputs raw RGB or RGBA files depending on the amount of channels in a QOI file
 
 	qoi_dec <input file> <output file>
+## Software Requirements
+ - C99 compiler or C++ compiler
+ - [CMake 3.1](https://cmake.org/)
 
 ## References
 Thank you to the authors of the source code being used for inspiration for this source code
