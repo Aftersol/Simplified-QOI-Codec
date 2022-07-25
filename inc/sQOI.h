@@ -137,7 +137,7 @@ typedef struct
 
     qoi_pixel_t prev_pixel;
 
-    size_t len;
+    size_t pixel_seek, img_area, qoi_len;
 
     uint8_t* data;
     uint8_t* offset;
@@ -171,7 +171,7 @@ bool read_qoi_header(qoi_desc_t *desc, void* data);
 
 /* QOI decoder functions */
 
-bool qoi_dec_init(qoi_dec_t* dec, void* data, size_t len);
+bool qoi_dec_init(qoi_desc_t* desc, qoi_dec_t* dec, void* data, size_t len);
 bool qoi_dec_done(qoi_dec_t* dec);
 qoi_pixel_t qoi_decode_chunk(qoi_dec_t* dec);
 
@@ -379,7 +379,7 @@ bool qoi_enc_done(qoi_enc_t* enc)
 }
 
 /* Initalize the decoder to the default state */
-bool qoi_dec_init(qoi_dec_t* dec, void* data, size_t len)
+bool qoi_dec_init(qoi_desc_t* desc, qoi_dec_t* dec, void* data, size_t len)
 {
     if (dec == NULL || data == NULL) return false;
 
@@ -395,7 +395,9 @@ bool qoi_dec_init(qoi_dec_t* dec, void* data, size_t len)
     dec->run = 0;
     dec->pad = 0;
     
-    dec->len = len;
+    dec->pixel_seek = 0;
+    dec->img_area = desc->width * desc->height;
+    dec->qoi_len = len;
 
     dec->data = (uint8_t*)data;
     dec->offset = dec->data + 14;
@@ -406,7 +408,7 @@ bool qoi_dec_init(qoi_dec_t* dec, void* data, size_t len)
 /* Has the decoder reached the end of file? */
 bool qoi_dec_done(qoi_dec_t* dec)
 {
-    return (dec->offset - dec->data > dec->len - 8);
+    return (dec->offset - dec->data > dec->qoi_len - 8) || (dec->pixel_seek >= dec->img_area);
 }
 
 /* 
@@ -672,6 +674,7 @@ qoi_pixel_t qoi_decode_chunk(qoi_dec_t* dec)
         dec->buffer[qoi_get_index_position(dec->prev_pixel)] = dec->prev_pixel;           
     }
     
+    dec->pixel_seek++;
     return dec->prev_pixel;
 }
 

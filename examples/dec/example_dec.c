@@ -100,7 +100,7 @@ int main(int argc, char* argv[])
         return 2;
     }
     
-    qoi_dec_init(&dec, qoi_bytes, buffer_size);
+    qoi_dec_init(&desc, &dec, qoi_bytes, buffer_size);
 
     /* Creates a blank image for the decoder to work on */
     bytes = (unsigned char*)malloc(raw_image_length * sizeof(unsigned char) + 4);
