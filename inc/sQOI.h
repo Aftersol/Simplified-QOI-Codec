@@ -396,7 +396,7 @@ bool qoi_dec_init(qoi_desc_t* desc, qoi_dec_t* dec, void* data, size_t len)
     dec->pad = 0;
     
     dec->pixel_seek = 0;
-    dec->img_area = desc->width * desc->height;
+    dec->img_area = (size_t)desc->width * (size_t)desc->height;
     dec->qoi_len = len;
 
     dec->data = (uint8_t*)data;
