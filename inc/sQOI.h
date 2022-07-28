@@ -381,7 +381,7 @@ bool qoi_enc_done(qoi_enc_t* enc)
 /* Initalize the decoder to the default state */
 bool qoi_dec_init(qoi_desc_t* desc, qoi_dec_t* dec, void* data, size_t len)
 {
-    if (dec == NULL || data == NULL) return false;
+    if (dec == NULL || data == NULL || len < 14) return false;
 
     /*
         A running array[64] (zero-initialized) of previously seen pixel
