@@ -163,11 +163,19 @@ static inline int32_t qoi_get_index_position(qoi_pixel_t pixel);
 /* QOI descriptor functions */
 
 bool qoi_desc_init(qoi_desc_t *desc);
+
 void qoi_set_dimensions(qoi_desc_t *desc, uint32_t width, uint32_t height);
 void qoi_set_channels(qoi_desc_t* desc, uint8_t channels);
 void qoi_set_colorspace(qoi_desc_t* desc, uint8_t colorspace);
 
+void write_qoi_header(qoi_desc_t *desc, void* dest);
 bool read_qoi_header(qoi_desc_t *desc, void* data);
+
+/* QOI encoder functions */
+
+bool qoi_enc_init(qoi_desc_t* desc, qoi_enc_t* enc, void* data);
+bool qoi_enc_done(qoi_enc_t* enc);
+void qoi_encode_chunk(qoi_desc_t *desc, qoi_enc_t *enc, void *qoi_pixel_bytes);
 
 /* QOI decoder functions */
 
@@ -198,19 +206,18 @@ static bool is_little_endian()
 {
     const uint32_t val = 1;
     return (*((char*)&val) == 1);
-
 }
 
 /* Compares two pixels for the same color */
 static bool qoi_cmp_pixel(qoi_pixel_t pixel1, qoi_pixel_t pixel2, const uint8_t channels)
 {
-    bool is_same_pixel = (
+    bool is_same_pixel = ( /* Compare three channels for a pixel */
         pixel1.red == pixel2.red &&
         pixel1.green == pixel2.green &&
         pixel1.blue == pixel2.blue);
 
-    if (channels > 3)
-        is_same_pixel = is_same_pixel && (pixel1.alpha == pixel2.alpha);
+    if (channels > 3) /* RGB pixels have three channels; RGBA pixels have four channels for the alpha channel */
+        is_same_pixel = is_same_pixel && (pixel1.alpha == pixel2.alpha); /* Compare the value of alpha for a pixel */
 
     return is_same_pixel;
 }
@@ -351,7 +358,7 @@ bool qoi_enc_init(qoi_desc_t* desc, qoi_enc_t* enc, void* data)
     if (enc == NULL || desc == NULL || data == NULL) return false;
 
     for (uint8_t element = 0; element < 64; element++)
-        qoi_initalize_pixel(&enc->buffer[element]);
+        qoi_initalize_pixel(&enc->buffer[element]); /* Initalize all the pixels in the buffer to zero for each channel of each pixels */
 
     enc->len = (size_t)desc->width * (size_t)desc->height;
 
@@ -375,7 +382,7 @@ bool qoi_enc_init(qoi_desc_t* desc, qoi_enc_t* enc, void* data)
 /* Check if the encoder has finished processing the image */
 bool qoi_enc_done(qoi_enc_t* enc)
 {
-    return (enc->pixel_offset >= enc->len);
+    return (enc->pixel_offset >= enc->len); /* Has the encoder encoded all the pixels yet? */
 }
 
 /* Initalize the decoder to the default state */
@@ -408,7 +415,8 @@ bool qoi_dec_init(qoi_desc_t* desc, qoi_dec_t* dec, void* data, size_t len)
 /* Has the decoder reached the end of file? */
 bool qoi_dec_done(qoi_dec_t* dec)
 {
-    return (dec->offset - dec->data > dec->qoi_len - 8) || (dec->pixel_seek >= dec->img_area);
+    /* Subtract eight from qoi_len because of QOI padding */
+    return (dec->offset - dec->data > dec->qoi_len - 8) || (dec->pixel_seek >= dec->img_area); /* Has the decoder decoded all the pixels yet or reached the end of the file? */
 }
 
 /* 
