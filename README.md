@@ -46,9 +46,9 @@ Define the following below before you include *qoi.h* library in **one** of your
 	}
 
 	/* 
-		Write the QOI file after encoding or do something else
+		Write the QOI file after encoding
 		or do something else after encoding
-	 */
+	*/
 ### Decoder
 	/* After reading a QOI file and placed in buffer */
 	
