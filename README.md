@@ -127,4 +127,4 @@ Thank you to the authors of the source code being used for inspiration for this 
 	- [Encoder](https://github.com/FFmpeg/FFmpeg/blob/master/libavcodec/qoienc.c)
 	- [Decoder](https://github.com/FFmpeg/FFmpeg/blob/master/libavcodec/qoidec.c)
 ### Others
-- [Endianness Deterimation Code](https://stackoverflow.com/a/4240014)
+- [Endianness Testing Code](https://stackoverflow.com/a/4240014)
