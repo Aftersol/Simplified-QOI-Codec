@@ -199,6 +199,35 @@ static inline void qoi_swap_bytes_32(void* byte)
     #endif
 }
 
+/* Extract 32 bit big endian integer regardless of computer architecture */
+static inline uint32_t qoi_get_be32(uint32_t value)
+{
+    uint8_t* bytes = (uint8_t*)&value;
+    uint32_t be_value = (uint32_t) (
+            (bytes[0] << 24) |
+            (bytes[1] << 16) |
+            (bytes[2] << 8) |
+            (bytes[3])
+        );
+    
+    return be_value;
+}
+
+/* Write 32 bit big endian integer regardless of computer architecture */
+static inline uint32_t qoi_to_be32(uint32_t value)
+{
+    /* Based on code from wm32 function: https://github.com/clausecker/memf/blob/master/src/fiddle.h#L124 */
+    uint8_t bytes[4] = 
+    {
+        value >> 24,
+        value >> 16,
+        value >> 8,
+        value,
+    };
+    
+    return *((uint32_t*)bytes);
+}
+
 /* https://stackoverflow.com/a/4240014 */
 
 /* Check if machine is little endian for converting big endian values to little endian values */
@@ -299,25 +328,11 @@ void write_qoi_header(qoi_desc_t *desc, void* dest)
 
     /* Writes all the metadata information about the image to the file */
 
-    if (is_little_endian())
-    {
-        uint32_t* dimension_ptr = (uint32_t*)&byte[4];
-        uint32_t width_be = desc->width;
-        uint32_t height_be = desc->height;
+    uint32_t* dimension_ptr = (uint32_t*)&byte[4];
 
-        qoi_swap_bytes_32(&width_be);
-        qoi_swap_bytes_32(&height_be);
-
-        dimension_ptr[0] = width_be;
-        dimension_ptr[1] = height_be;
-    }
-    else
-    {
-        uint32_t* dimension_ptr = (uint32_t*)&byte[4];
-
-        dimension_ptr[0] = desc->width;
-        dimension_ptr[1] = desc->height;
-    }
+    /* Writes the width and height values of the image to QOI header which stores them in big endian */
+    dimension_ptr[0] = qoi_to_be32(desc->width);
+    dimension_ptr[1] = qoi_to_be32(desc->height);
 
     byte[12] = desc->channels;
     byte[13] = desc->colorspace;
@@ -343,11 +358,9 @@ bool read_qoi_header(qoi_desc_t *desc, void* data)
     qoi_set_channels(desc, *((uint8_t*)&byte[12]));
     qoi_set_colorspace(desc, *((uint8_t*)&byte[13]));
 
-    if (is_little_endian())
-    {
-        qoi_swap_bytes_32(&desc->width);
-        qoi_swap_bytes_32(&desc->height);
-    }
+    /* Get width and height of the image from QOI header which stores these values in big endian */
+    desc->width = qoi_get_be32(desc->width);
+    desc->height = qoi_get_be32(desc->height);
 
     return true;
 }
