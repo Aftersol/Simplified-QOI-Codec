@@ -148,8 +148,8 @@ typedef struct
 
 /* Machine specific code */
 
-static inline void qoi_swap_bytes_32(void* byte);
-static bool is_little_endian();
+static inline uint32_t qoi_get_be32(uint32_t value);
+static inline uint32_t qoi_to_be32(uint32_t value);
 
 /* Pixel related code */
 
@@ -183,23 +183,7 @@ bool qoi_dec_init(qoi_desc_t* desc, qoi_dec_t* dec, void* data, size_t len);
 bool qoi_dec_done(qoi_dec_t* dec);
 qoi_pixel_t qoi_decode_chunk(qoi_dec_t* dec);
 
-/* Swap a 32 bit word between endianess */
-static inline void qoi_swap_bytes_32(void* byte)
-{
-    uint32_t* byte_ptr = (uint32_t*)byte;
-    #ifdef _MSC_VER
-    *byte_ptr = _byteswap_ulong(*byte_ptr);
-
-    #elif defined(__GNUC__)
-    *byte_ptr = __builtin_bswap32(*byte_ptr);
-
-    #else
-    const uint32_t value = *byte_ptr;
-    *byte_ptr = ((value >> 24) & 0xFF | (value >> 8) & 0xFF00 | (value << 8) & 0xFF0000 | (value << 24) & 0xFF000000);
-    #endif
-}
-
-/* Extract 32 bit big endian integer regardless of computer architecture */
+/* Extract a 32-bit big endian integer regardless of endianness */
 static inline uint32_t qoi_get_be32(uint32_t value)
 {
     uint8_t* bytes = (uint8_t*)&value;
@@ -213,28 +197,17 @@ static inline uint32_t qoi_get_be32(uint32_t value)
     return be_value;
 }
 
-/* Write 32 bit big endian integer regardless of computer architecture */
+/* Write a 32-bit big endian integer regardless of endianness */
 static inline uint32_t qoi_to_be32(uint32_t value)
 {
-    /* Based on code from wm32 function: https://github.com/clausecker/memf/blob/master/src/fiddle.h#L124 */
-    uint8_t bytes[4] = 
-    {
-        value >> 24,
-        value >> 16,
-        value >> 8,
-        value,
-    };
+    uint8_t bytes[4];
+
+    bytes[0] = (value >> 24);
+    bytes[1] = (value >> 16);
+    bytes[2] = (value >> 8);
+    bytes[3] = (value);
     
     return *((uint32_t*)bytes);
-}
-
-/* https://stackoverflow.com/a/4240014 */
-
-/* Check if machine is little endian for converting big endian values to little endian values */
-static bool is_little_endian()
-{
-    const uint32_t val = 1;
-    return (*((char*)&val) == 1);
 }
 
 /* Compares two pixels for the same color */
