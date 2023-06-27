@@ -71,12 +71,8 @@ int main(int argc, char* argv[])
 
     fclose(fp);
 
-    /*  Set up QOI decoding process */
+    /* Set up QOI decoding process */
     qoi_desc_init(&desc);
-
-    qoi_initalize_pixel(&px);
-    
-    qoi_set_pixel_rgba(&px, 0, 0, 0, 255);
 
     if (!read_qoi_header(&desc, qoi_bytes))
     {
