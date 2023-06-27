@@ -53,15 +53,13 @@ Define the following below before you include *qoi.h* library in **one** of your
 	/* After reading a QOI file and placed in buffer */
 	
 	qoi_desc_t desc;
-	qoi_dec_T dec;
+	qoi_dec_t dec;
 	qoi_pixel_t px;
 	
 	uint8_t *bytes;
 	size_t rawImageLength, seek;
 	
 	qoi_desc_init(&desc);
-	qoi_initalize_pixel(&px);
-	qoi_set_pixel_rgba(&px, 0, 0, 0, 255);
 	
 	if (!read_qoi_header(&desc, qoi_bytes))
 	{
