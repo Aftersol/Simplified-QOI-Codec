@@ -213,15 +213,14 @@ static inline uint32_t qoi_to_be32(uint32_t value)
 /* Compares two pixels for the same color */
 static bool qoi_cmp_pixel(qoi_pixel_t pixel1, qoi_pixel_t pixel2, const uint8_t channels)
 {
-    bool is_same_pixel = ( /* Compare three channels for a pixel */
-        pixel1.red == pixel2.red &&
-        pixel1.green == pixel2.green &&
-        pixel1.blue == pixel2.blue);
+    if (channels < 4) /* RGB pixels have three channels; RGBA pixels have four channels for the alpha channel */
+    {
+        /* O2 optimization will mask out these alpha values using AND instruction so it compares only the colors of a pixel */
+        pixel1.alpha = 0;
+        pixel2.alpha = 0;
+    }
 
-    if (channels > 3) /* RGB pixels have three channels; RGBA pixels have four channels for the alpha channel */
-        is_same_pixel = is_same_pixel && (pixel1.alpha == pixel2.alpha); /* Compare the value of alpha for a pixel */
-
-    return is_same_pixel;
+    return pixel1.concatenated_pixel_values == pixel2.concatenated_pixel_values; /* compare pixels */
 }
 
 /* Sets the RGB pixel by a certain pixel value */
@@ -450,7 +449,7 @@ void qoi_encode_chunk(qoi_desc_t *desc, qoi_enc_t *enc, void *qoi_pixel_bytes)
         if (enc->run > 0)
         {
             /*  Write opcode for because there are differences in pixels
-                The run-length is stored with a bias of -1*/
+                The run-length is stored with a bias of -1 */
             uint8_t tag = QOI_OP_RUN | (enc->run - 1);
             enc->run = 0;
 
