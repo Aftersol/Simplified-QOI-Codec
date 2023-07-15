@@ -121,7 +121,7 @@ Thank you to the authors of the source code being used for inspiration for this 
 ### Other QOI Programs
 - [Mini-QOI (sharaiwi) (decoder only)](https://github.com/shraiwi/mini-qoi)
 - [QOI Explained (YouTube: Reducible)](https://youtu.be/EFUYNoFRHQI?t=1411)
-- [QOI Viewer](https://floooh.github.io/qoiview/qoiview.html)
+- [floooh's QOI Viewer](https://floooh.github.io/qoiview/qoiview.html)
 - [FFmpeg](https://github.com/FFmpeg/FFmpeg)
 	- [Encoder](https://github.com/FFmpeg/FFmpeg/blob/master/libavcodec/qoienc.c)
 	- [Decoder](https://github.com/FFmpeg/FFmpeg/blob/master/libavcodec/qoidec.c)
