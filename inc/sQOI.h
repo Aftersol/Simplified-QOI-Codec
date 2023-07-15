@@ -177,11 +177,25 @@ bool qoi_enc_init(qoi_desc_t* desc, qoi_enc_t* enc, void* data);
 bool qoi_enc_done(qoi_enc_t* enc);
 void qoi_encode_chunk(qoi_desc_t *desc, qoi_enc_t *enc, void *qoi_pixel_bytes);
 
+static inline void qoi_enc_rgb(qoi_enc_t *enc, qoi_pixel_t px);
+static inline void qoi_enc_rgba(qoi_enc_t *enc, qoi_pixel_t px);
+
+static inline void qoi_enc_index(qoi_enc_t *enc, uint8_t index_pos);
+static inline void qoi_enc_run(qoi_enc_t *enc);
+
 /* QOI decoder functions */
 
 bool qoi_dec_init(qoi_desc_t* desc, qoi_dec_t* dec, void* data, size_t len);
 bool qoi_dec_done(qoi_dec_t* dec);
 qoi_pixel_t qoi_decode_chunk(qoi_dec_t* dec);
+
+static inline void qoi_dec_rgb(qoi_dec_t* dec);
+static inline void qoi_dec_rgba(qoi_dec_t* dec);
+
+static inline void qoi_dec_index(qoi_dec_t* dec, uint8_t tag); 
+static inline void qoi_dec_diff(qoi_dec_t* dec, uint8_t tag);
+static inline void qoi_dec_luma(qoi_dec_t* dec, uint8_t tag);
+static inline void qoi_dec_run(qoi_dec_t* dec, uint8_t tag);
 
 /* Extract a 32-bit big endian integer regardless of endianness */
 static inline uint32_t qoi_get_be32(uint32_t value)
@@ -404,6 +418,58 @@ bool qoi_dec_done(qoi_dec_t* dec)
     return (dec->offset - dec->data > dec->qoi_len - 8) || (dec->pixel_seek >= dec->img_area); /* Has the decoder decoded all the pixels yet or reached the end of the file? */
 }
 
+static inline void qoi_enc_rgb(qoi_enc_t *enc, qoi_pixel_t px)
+{
+    uint8_t tag[4] = {
+        QOI_OP_RGB,
+        px.red,
+        px.green,
+        px.blue
+    };
+
+    enc->offset[0] = tag[0];
+    enc->offset[1] = tag[1];
+    enc->offset[2] = tag[2];
+    enc->offset[3] = tag[3];
+
+    enc->offset += 4;
+}
+
+static inline void qoi_enc_rgba(qoi_enc_t *enc, qoi_pixel_t px)
+{
+    uint8_t tag[5] =
+    {
+        QOI_OP_RGBA,
+        px.red,
+        px.green,
+        px.blue,
+        px.alpha
+    };
+
+    enc->offset[0] = tag[0];
+    enc->offset[1] = tag[1];
+    enc->offset[2] = tag[2];
+    enc->offset[3] = tag[3];
+    enc->offset[4] = tag[4];
+    enc->offset += 5;
+}
+
+static inline void qoi_enc_index(qoi_enc_t *enc, uint8_t index_pos)
+{
+    /* The run-length is stored with a bias of -1 */
+    uint8_t tag = QOI_OP_INDEX | index_pos;
+    enc->offset++[0] = tag;
+}
+
+static inline void qoi_enc_run(qoi_enc_t *enc)
+{
+    /* The run-length is stored with a bias of -1 */
+    uint8_t tag = QOI_OP_RUN | (enc->run - 1);
+    enc->run = 0;
+    
+    enc->offset++[0] = tag;
+}
+
 /* 
     WARNING: In this function below, you must provide enough memory to put the encoded images 
     The safest amount of space to store encoded images is the equation below
@@ -437,11 +503,7 @@ void qoi_encode_chunk(qoi_desc_t *desc, qoi_enc_t *enc, void *qoi_pixel_bytes)
             occupied by the QOI_OP_RGB and QOI_OP_RGBA tags. */
         if (++enc->run >= 62 || enc->pixel_offset >= enc->len)
         {
-            /* The run-length is stored with a bias of -1 */
-            uint8_t tag = QOI_OP_RUN | (enc->run - 1);
-            enc->run = 0;
-            
-            enc->offset++[0] = tag;
+            qoi_enc_run(enc);
         }
     }
     else
@@ -450,19 +512,14 @@ void qoi_encode_chunk(qoi_desc_t *desc, qoi_enc_t *enc, void *qoi_pixel_bytes)
         {
             /*  Write opcode for because there are differences in pixels
                 The run-length is stored with a bias of -1 */
-            uint8_t tag = QOI_OP_RUN | (enc->run - 1);
-            enc->run = 0;
-
-            enc->offset++[0] = tag;
+            qoi_enc_run(enc);
 
         }
         
         /* Check if pixels exist in one of the pixel hash buffers */
         if (qoi_cmp_pixel(enc->buffer[index_pos], cur_pixel, 4))
         {
-            uint8_t tag = QOI_OP_INDEX | index_pos;
-            enc->offset++[0] = tag;
-
+            qoi_enc_index(enc, index_pos);
         }
         else
         {
@@ -471,21 +528,7 @@ void qoi_encode_chunk(qoi_desc_t *desc, qoi_enc_t *enc, void *qoi_pixel_bytes)
             /* QOI doesn't have opcodes for alpha values so check alpha values between two pixels first */
             if (desc->channels > 3 && cur_pixel.alpha != enc->prev_pixel.alpha)
             {
-                uint8_t tag[5] =
-                {
-                    QOI_OP_RGBA,
-                    cur_pixel.red,
-                    cur_pixel.green,
-                    cur_pixel.blue,
-                    cur_pixel.alpha
-                };
-
-                enc->offset[0] = tag[0];
-                enc->offset[1] = tag[1];
-                enc->offset[2] = tag[2];
-                enc->offset[3] = tag[3];
-                enc->offset[4] = tag[4];
-                enc->offset += 5;
+                qoi_enc_rgba(enc, cur_pixel);
             }
             else
             {
@@ -533,19 +576,7 @@ void qoi_encode_chunk(qoi_desc_t *desc, qoi_enc_t *enc, void *qoi_pixel_bytes)
                 /* otherwise write an RGB tag containting the RGB values of a pixel */
                 else
                 {
-                    uint8_t tag[4] = {
-                        QOI_OP_RGB,
-                        cur_pixel.red,
-                        cur_pixel.green,
-                        cur_pixel.blue
-                    };
-
-                    enc->offset[0] = tag[0];
-                    enc->offset[1] = tag[1];
-                    enc->offset[2] = tag[2];
-                    enc->offset[3] = tag[3];
-
-                    enc->offset += 4;
+                    qoi_enc_rgb(enc, cur_pixel);
                 }
             }
 
@@ -571,6 +602,57 @@ void qoi_encode_chunk(qoi_desc_t *desc, qoi_enc_t *enc, void *qoi_pixel_bytes)
     }
 }
 
+static inline void qoi_dec_rgb(qoi_dec_t* dec)
+{
+    dec->prev_pixel.red = dec->offset[1];
+    dec->prev_pixel.green = dec->offset[2];
+    dec->prev_pixel.blue = dec->offset[3];
+    dec->offset += 4;
+}
+
+static inline void qoi_dec_rgba(qoi_dec_t* dec)
+{
+    dec->prev_pixel.red = dec->offset[1];
+    dec->prev_pixel.green = dec->offset[2];
+    dec->prev_pixel.blue = dec->offset[3];
+    dec->prev_pixel.alpha = dec->offset[4];
+    dec->offset += 5;
+}
+
+static inline void qoi_dec_index(qoi_dec_t* dec, uint8_t tag)
+{
+    dec->prev_pixel = dec->buffer[tag & QOI_TAG_MASK];
+    dec->offset += 1;
+}
+
+static inline void qoi_dec_diff(qoi_dec_t* dec, uint8_t tag)
+{
+    uint8_t diff = tag & QOI_TAG_MASK;
+
+    uint8_t red_diff = ((diff >> 4) & 0x03) - 2;
+    uint8_t green_diff = ((diff >> 2) & 0x03) - 2;
+    uint8_t blue_diff = (diff & 0x03) - 2;
+
+    dec->prev_pixel.red += red_diff;
+    dec->prev_pixel.green += green_diff;
+    dec->prev_pixel.blue += blue_diff;
+    dec->offset += 1;
+}
+
+static inline void qoi_dec_luma(qoi_dec_t* dec, uint8_t tag)
+{
+    uint8_t lumaGreen = (tag & QOI_TAG_MASK) - 32;
+
+    dec->prev_pixel.red += lumaGreen + ((dec->offset[1] & 0xF0) >> 4) - 8;
+    dec->prev_pixel.green += lumaGreen;
+    dec->prev_pixel.blue += lumaGreen + (dec->offset[1] & 0x0F) - 8;
+
+    dec->offset += 2;
+}
+static inline void qoi_dec_run(qoi_dec_t* dec, uint8_t tag){
+    dec->run = tag & QOI_TAG_MASK;
+    dec->offset += 1;
+}
 
 /* 
     WARNING: In this function below, you must provide enough memory to put the decoded images 
@@ -596,18 +678,11 @@ qoi_pixel_t qoi_decode_chunk(qoi_dec_t* dec)
 
         if (tag == QOI_OP_RGB) /* RGB pixel */
         {
-            dec->prev_pixel.red = dec->offset[1];
-            dec->prev_pixel.green = dec->offset[2];
-            dec->prev_pixel.blue = dec->offset[3];
-            dec->offset += 4;
+            qoi_dec_rgb(dec);
         }
         else if (tag == QOI_OP_RGBA) /* RGBA pixel */
         {
-            dec->prev_pixel.red = dec->offset[1];
-            dec->prev_pixel.green = dec->offset[2];
-            dec->prev_pixel.blue = dec->offset[3];
-            dec->prev_pixel.alpha = dec->offset[4];
-            dec->offset += 5;
+            qoi_dec_rgba(dec);
         }
         else
         {
@@ -617,41 +692,25 @@ qoi_pixel_t qoi_decode_chunk(qoi_dec_t* dec)
             {
                 case QOI_OP_INDEX:
                 {
-                    dec->prev_pixel = dec->buffer[tag & QOI_TAG_MASK];
-                    dec->offset += 1;
+                    qoi_dec_index(dec, tag);
 
                     break;
                 }
                 case QOI_OP_DIFF:
                 {
-                    uint8_t diff = tag & QOI_TAG_MASK;
-                    uint8_t red_diff = ((diff >> 4) & 0x03) - 2;
-                    uint8_t green_diff = ((diff >> 2) & 0x03) - 2;
-                    uint8_t blue_diff = (diff & 0x03) - 2;
-
-                    dec->prev_pixel.red += red_diff;
-                    dec->prev_pixel.green += green_diff;
-                    dec->prev_pixel.blue += blue_diff;
-                    dec->offset += 1;
+                    qoi_dec_diff(dec, tag);
 
                     break;
                 }
                 case QOI_OP_LUMA:
                 {
-                    uint8_t lumaGreen = (tag & QOI_TAG_MASK) - 32;
-
-                    dec->prev_pixel.red += lumaGreen + ((dec->offset[1] & 0xF0) >> 4) - 8;
-                    dec->prev_pixel.green += lumaGreen;
-                    dec->prev_pixel.blue += lumaGreen + (dec->offset[1] & 0x0F) - 8;
-
-                    dec->offset += 2;
+                    qoi_dec_luma(dec, tag);
 
                     break;
                 }
                 case QOI_OP_RUN:
                 {
-                    dec->run = tag & QOI_TAG_MASK;
-                    dec->offset += 1;
+                    qoi_dec_run(dec, tag);
 
                     break;
                 }
