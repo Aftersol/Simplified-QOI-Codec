@@ -21,6 +21,8 @@
     THE QUITE OK IMAGE FORMAT
     Implementation based on the Version 1.0 created by Dominic Szablewski
     Published on 2022.01.05 – qoiformat.org
+
+    Implementation version - 1.0 - revised 2023-30-07
     
     QOI specification - https://qoiformat.org/qoi-specification.pdf
 
