@@ -28,7 +28,7 @@ int main(int argc, char* argv[])
     uint32_t width, height;
     uint8_t channels, colorspace;
     size_t file_size;
-
+    
     if (argc < 6)
     {
         print_help();
@@ -91,7 +91,15 @@ int main(int argc, char* argv[])
         size_t image_size = (size_t)width * (size_t)height * (size_t)channels;
         size_t size_difference = file_size - image_size;
 
-        printf("%zu bytes are required for the file, %s. Your requested dimensions and channels amount allocates %zu bytes. That is %zu bytes difference\n", file_size, argv[1], image_size, size_difference);
+        printf(
+            "%zu bytes are required for the file, %s. Your requested dimensions and channels amount allocates %zu bytes. That is %zu %s difference\n",
+            file_size,
+            argv[1],
+            image_size,
+            size_difference,
+            /* for printing plurals from of the word "byte" */
+            (size_difference > 1) ? "bytes" : "byte"
+            );
         print_help();
 
         return -1;
