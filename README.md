@@ -20,7 +20,7 @@ Define the following below before you include *qoi.h* library in **one** of your
 ## Minimal implementation
 ### Encoder
 	/* 	
-		Assume you open the file and
+		Assume you opened the file and
 		allocated enough memory for the encoder
 		before this code
 	*/
