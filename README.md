@@ -9,7 +9,7 @@ A one header file library for encoding and decoding QOI files.
 
 [^1]: You must provide a pointer to an existing array to run this codec
 
-## How to Install Library
+## How To Install Library
 Place the *qoi.h* file into your project folder preferably in your project's include folder
 
 Define the following below before you include *qoi.h* library in **one** of your source code file
@@ -17,7 +17,7 @@ Define the following below before you include *qoi.h* library in **one** of your
 	#define  SIMPLIFIED_QOI_IMPLEMENTATION
 	#include "sQOI.h"
 	
-## Minimal implementation
+## Minimal Implementation
 ### Encoder
 	/* 	
 		Assume you opened the file and
@@ -98,7 +98,7 @@ Define the following below before you include *qoi.h* library in **one** of your
 	
 	/* Use the pixels however you want after this code */
 
-## How to Run Example Programs
+## How To Run Example Programs
 ### Encoder
 
     qoi_enc <input file> <width> <height> <channels> <colorspace> <output file>
@@ -117,6 +117,9 @@ Thank you to the authors of the source code being used for inspiration for this 
 ### Official QOI References
 - [QOI Reference Implementation (phoboslab)](https://github.com/phoboslab/qoi)
 - [QOI Specification](https://qoiformat.org/qoi-specification.pdf)
+
+### Example Project That Use This Library
+- [N64 QOI Viewer](https://github.com/Aftersol/n64_qoi_demo)
 
 ### Other QOI Programs
 - [Mini-QOI (sharaiwi) (decoder only)](https://github.com/shraiwi/mini-qoi)
