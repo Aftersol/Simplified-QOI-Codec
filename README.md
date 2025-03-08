@@ -39,7 +39,7 @@ Define the following below before you include *qoi.h* library in **one** of your
 	pixel_seek = file_buffer;
 	qoi_enc_init(&desc, &enc, qoi_file);
 
-	while(!qoi_enc_done(&enc))
+	while (!qoi_enc_done(&enc))
 	{
 		qoi_encode_chunk(&desc, &enc, pixel_seek);
 		pixel_seek += desc.channels;
