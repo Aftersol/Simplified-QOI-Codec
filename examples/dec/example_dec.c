@@ -2,7 +2,16 @@
 
     -- example_dec.c -- Reference QOI decoding usage of this library
 
-    -- version 1.0 -- revised 2023-27-06
+    -- version 1.1 -- revised 2025-04-07
+
+    -- Changelog --
+
+    - version 1.1 (2025-04-07)
+        - Implemented error handling in case reading RGBA file fails
+        - Strictly check color channels and colorspace decoded
+        from QOI files according to QOI specifications
+
+    - version 1.0 (2023-06-27)
 
     MIT License
 
@@ -92,7 +101,19 @@ int main(int argc, char* argv[])
         return 3;
     }
 
-    fread(qoi_bytes, 1, buffer_size, fp);
+    if (fread(qoi_bytes, 1, buffer_size, fp) < buffer_size)
+    {
+        if (ferror(fp)) 
+        {
+            printf("An error has occur while reading %s\n", argv[1]);
+            print_help();
+    
+            fclose(fp);
+            free(qoi_bytes);
+    
+            return 1;
+        }
+    }
 
     fclose(fp);
 
@@ -103,7 +124,10 @@ int main(int argc, char* argv[])
     {
         printf("The file you opened is not a QOIF file\n");
         print_help();
+
         fclose(fp);
+        free(qoi_bytes);
+
         return 1;
     }
 
@@ -111,6 +135,26 @@ int main(int argc, char* argv[])
     printf("Image dimensions %ux%u\n", desc.width, desc.height);
     printf("Number of channels: %u\n", desc.channels);
     printf("Colorspace: %u\n", desc.colorspace);
+
+    if (desc.channels < 3 || desc.channels > 4) {
+        printf("Color channels retrived from %s is not vaild\n", argv[1]);
+        print_help();
+
+        fclose(fp);
+        free(qoi_bytes);
+
+        return 1;
+    }
+
+    if (desc.colorspace < 0 || desc.colorspace > 1) {
+        printf("Colorspace read from %s is not vaild\n", argv[1]);
+        print_help();
+
+        fclose(fp);
+        free(qoi_bytes);
+
+        return 1;
+    }
 
     raw_image_length = (size_t)desc.width * (size_t)desc.height * (size_t)desc.channels;
     seek = 0;

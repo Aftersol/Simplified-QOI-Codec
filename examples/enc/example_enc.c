@@ -2,7 +2,16 @@
 
     -- example_enc.c -- Reference QOI encoding usage of this library
 
-    -- version 1.0 -- revised 2025-13-01
+    -- version 1.1 -- revised 2025-04-07
+
+    -- Changelog --
+
+    - version 1.1 (2025-04-07)
+        - Implemented error handling in case reading RGBA file fails
+        - Strictly check requested color channels and colorspace
+        according to QOI specifications
+
+    - version 1.0 (2025-01-13)
 
     MIT License
 
@@ -71,26 +80,32 @@ int main(int argc, char* argv[])
         width = strtoul(argv[2], NULL, 0);
         height = strtoul(argv[3], NULL, 0);
 
-        channels = strtoul(argv[4], NULL, 0);
-        colorspace = strtoul(argv[5], NULL, 0);
+        /* Check if requested amount or color channels is 3 or 4 according to QOI specifications */
+        if (strtoul(argv[4], NULL, 0) >= 3 && strtoul(argv[4], NULL, 0) <= 4) {
+            channels = strtoul(argv[4], NULL, 0);
+        }
+        else
+        {
+            printf("Channels entered must be 3 (RGB) or 4 (RGBA)\n");
+            print_help();
+            return -1;
+        }
+
+        /* Check if requested colorspace is according to QOI specifications:
+           0 (sRGB with linear alpha)
+           1 (linear RGB)  
+        */
+        if (strtoul(argv[5], NULL, 0) >= 0 && strtoul(argv[5], NULL, 0) <= 1) {
+            colorspace = strtoul(argv[5], NULL, 0);
+        }
+        else
+        {
+            printf("Colorspace entered must be 0 (sRGB with linear alpha) or 1 (linear RGB)\n");
+            print_help();
+            return -1;
+        }
 
         if (width < 0 || height < 0)
-        {
-            print_help();
-            return -1;
-        }
-
-        if (channels < 0)
-        {
-            print_help();
-            return -1;
-        }
-        
-        if (channels < 3) channels = 3;
-
-        if (channels > 4) channels = 4;
-
-        if (colorspace < 0 || colorspace > 1)
         {
             print_help();
             return -1;
@@ -139,7 +154,20 @@ int main(int argc, char* argv[])
         return 1;
     }
 
-    fread(file_buffer, 1, file_size, fp);
+    if (fread(file_buffer, 1, file_size, fp) < file_size) 
+    {
+        if (ferror(fp)) 
+        {
+            printf("An error has occur while reading %s\n", argv[1]);
+            print_help();
+    
+            fclose(fp);
+            free(file_buffer);
+    
+            return 1;
+        }
+    }
+
     fclose(fp);
 
     qoi_desc_init(&desc);
@@ -155,7 +183,7 @@ int main(int argc, char* argv[])
         return 1;
     }
 
-    printf("Writing %s\n",argv[6]);
+    printf("Encoding %s to %s. Please wait . . .\n", argv[1], argv[6]);
 
     write_qoi_header(&desc, qoi_file);
 
