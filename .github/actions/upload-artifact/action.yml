@@ -35,7 +35,7 @@ runs:
         # If false, the action will fail if an artifact for the given name already exists.
         # Does not fail if the artifact does not exist.
         # Optional. Default is 'false'
-        overwrite:
+        overwrite: false
 
         # Whether to include hidden files in the provided path in the artifact
         # The file contents of any hidden files in the path should be validated before
