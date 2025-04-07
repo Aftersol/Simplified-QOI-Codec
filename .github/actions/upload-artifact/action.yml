@@ -1,11 +1,11 @@
 name: Upload Build
 description: Uploads resulting build
 inputs:
-  SOURCE_DEST:
+  SOURCE_DIR:
     description: 'Path to directory to be uploaded'
     required: true
     type: string
-  DEST_DIR:
+  DEST_NAME:
     description: 'Name of the uploaded artifact'
     required: true
     type: string
@@ -17,11 +17,11 @@ runs:
       with:
         # Name of the artifact to upload.
         # Optional. Default is 'artifact'
-        name: ${{ inputs.DEST_DIR }}
+        name: ${{ inputs.DEST_NAME }}
 
         # A file, directory or wildcard pattern that describes what to upload
         # Required.
-        path: ${{ inputs.OUTPUT_DIR }}
+        path: ${{ inputs.SOURCE_DIR }}
 
         # The desired behavior if no files are found using the provided path.
         # Available Options:

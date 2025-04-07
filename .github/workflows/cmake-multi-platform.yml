@@ -88,6 +88,6 @@ jobs:
       uses: ./.github/actions/upload-artifact
       if: ${{ always() && steps.build.outcome == 'success' && steps.test.outcome == 'success'}}
       with:
-        DEST_DIR: ${{ matrix.os }}-sQOI_build
+        DEST_NAME: ${{ matrix.os }}-sQOI_build
         SOURCE_DIR: ${{ steps.strings.outputs.build-output-dir }}
         
