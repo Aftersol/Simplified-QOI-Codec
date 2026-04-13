@@ -203,31 +203,20 @@ int main(int argc, char* argv[])
 
     printf("Encoding %s to %s. Please wait . . .\n", argv[1], argv[6]);
 
-    write_qoi_header(&desc, qoi_enc_buffer);
+    write_qoi_header(&desc, qoi_file);
 
     pixel_seek = file_buffer;
 
-    qoi_enc_init(&desc, &enc, QOI_ENC_BUFFER_SIZE, qoi_enc_buffer);
-
-    fp = fopen(argv[6], "wb");
+    qoi_enc_init(&desc, &enc, qoi_file);
 
     while(!qoi_enc_done(&enc))
     {
         qoi_encode_chunk(&desc, &enc, pixel_seek);
-        qoi_write_partial(&enc);
-        
-        if (qoi_enc_buffer_full(&enc))
-        {
-            fwrite(enc.encoded_buffer, sizeof(uint8_t), QOI_ENC_BUFFER_SIZE, fp);
-            
-            qoi_enc_reset_buffer(&enc);
-            qoi_write_partial(&enc);
-        }
 
         pixel_seek += desc.channels;
     }
 
-    
+    fp = fopen(argv[6], "wb");
     
     if (fp)
     {
