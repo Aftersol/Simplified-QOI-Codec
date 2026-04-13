@@ -2,9 +2,12 @@
 
     -- example_enc.c -- Reference QOI encoding usage of this library
 
-    -- version 1.1 -- revised 2025-04-07
+    -- version 1.1.1 -- revised 2026-04-13
 
     -- Changelog --
+
+    - version 1.1.1 (2026-04-13)
+        - Modified program to display version info
 
     - version 1.1 (2025-04-07)
         - Implemented error handling in case reading RGBA file fails
@@ -43,7 +46,18 @@
 #include <string.h>
 
 #define SIMPLIFIED_QOI_IMPLEMENTATION
+
+#define QOI_ENC_BUFFER_SIZE 131072 /* Buffer size set to 128 KiB */
+
 #include "sQOI.h"
+
+const char version_number[] = "version 1.1.1";
+const char revised_date[] = "2026-04-13";
+
+void print_version()
+{
+    printf("QOI Encoder\nversion: %s -- revised %s\n", version_number, revised_date);
+}
 
 void print_help()
 {
@@ -51,6 +65,8 @@ void print_help()
     printf("Channels:\n3: No transparency\n4: Transparency\n\n");
     printf("Colorspace:\n0: sRGB with linear alpha\n1: Linear RGB\n");
 }
+
+uint8_t qoi_enc_buffer[QOI_ENC_BUFFER_SIZE];
 
 int main(int argc, char* argv[])
 {
@@ -63,6 +79,8 @@ int main(int argc, char* argv[])
     uint8_t channels, colorspace;
     size_t file_size;
     
+    print_version();
+
     if (argc < 6)
     {
         print_help();
@@ -70,7 +88,7 @@ int main(int argc, char* argv[])
     }
     else
     {
-
+        /* Read arguments */
         if (strlen(argv[1]) <= 0)
         {
             print_help();
@@ -185,20 +203,31 @@ int main(int argc, char* argv[])
 
     printf("Encoding %s to %s. Please wait . . .\n", argv[1], argv[6]);
 
-    write_qoi_header(&desc, qoi_file);
+    write_qoi_header(&desc, qoi_enc_buffer);
 
     pixel_seek = file_buffer;
 
-    qoi_enc_init(&desc, &enc, qoi_file);
+    qoi_enc_init(&desc, &enc, QOI_ENC_BUFFER_SIZE, qoi_enc_buffer);
+
+    fp = fopen(argv[6], "wb");
 
     while(!qoi_enc_done(&enc))
     {
         qoi_encode_chunk(&desc, &enc, pixel_seek);
+        qoi_write_partial(&enc);
+        
+        if (qoi_enc_buffer_full(&enc))
+        {
+            fwrite(enc.encoded_buffer, sizeof(uint8_t), QOI_ENC_BUFFER_SIZE, fp);
+            
+            qoi_enc_reset_buffer(&enc);
+            qoi_write_partial(&enc);
+        }
 
         pixel_seek += desc.channels;
     }
 
-    fp = fopen(argv[6], "wb");
+    
     
     if (fp)
     {

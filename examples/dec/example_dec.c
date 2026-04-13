@@ -2,9 +2,12 @@
 
     -- example_dec.c -- Reference QOI decoding usage of this library
 
-    -- version 1.1 -- revised 2025-04-07
+    -- version 1.1.1 -- revised 2026-04-13
 
     -- Changelog --
+
+    - version 1.1.1 (2026-04-13)
+        - Modified program to display version info
 
     - version 1.1 (2025-04-07)
         - Implemented error handling in case reading RGBA file fails
@@ -45,6 +48,14 @@
 #define SIMPLIFIED_QOI_IMPLEMENTATION
 #include "sQOI.h"
 
+const char version_number[] = "version 1.1.1";
+const char revised_date[] = "2026-04-13";
+
+void print_version()
+{
+    printf("QOI Encoder\nversion: %s -- revised %s\n", version_number, revised_date);
+}
+
 void print_help()
 {
     printf("Example usage: qoi_dec <qoi file> <raw output file>\n");
@@ -61,6 +72,8 @@ int main(int argc, char* argv[])
     size_t raw_image_length, seek, buffer_size;
 
     FILE* fp;
+
+    print_version();
 
     if (argc < 3)
     {
