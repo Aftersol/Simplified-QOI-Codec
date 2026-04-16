@@ -2,10 +2,14 @@
 
     -- example_enc.c -- Reference QOI encoding usage of this library
 
-    -- version 1.1.1 -- revised 2026-04-13
+    -- version 1.1.2 -- revised 2026-04-13
 
     -- Changelog --
-
+    
+    - version 1.1.2 (2026-04-16)
+        - Fixed underflow if thesize of the raw image is smaller
+        than requested image size and number of image channels
+        
     - version 1.1.1 (2026-04-13)
         - Modified program to display version info
 
@@ -18,7 +22,7 @@
 
     MIT License
 
-    Copyright (c) 2024-2025 Aftersol
+    Copyright (c) 2024-2026 Aftersol
 
     Permission is hereby granted, free of charge, to any person obtaining a copy
     of this software and associated documentation files (the "Software"), to deal
@@ -51,8 +55,8 @@
 
 #include "sQOI.h"
 
-const char version_number[] = "version 1.1.1";
-const char revised_date[] = "2026-04-13";
+const char version_number[] = "version 1.1.2";
+const char revised_date[] = "2026-04-16";
 
 void print_version()
 {
