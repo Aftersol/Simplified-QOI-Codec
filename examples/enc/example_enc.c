@@ -147,10 +147,10 @@ int main(int argc, char* argv[])
     if ((size_t)width * (size_t)height * (size_t)channels < file_size)
     {
         size_t image_size = (size_t)width * (size_t)height * (size_t)channels;
-        size_t size_difference = file_size - image_size;
+        size_t size_difference = image_size - file_size;
 
         printf(
-            "%zu bytes are required for the file, %s. Your requested dimensions and channels amount allocates %zu bytes. That is %zu %s difference\n",
+            "%zu bytes are required for the file, %s. Your requested image dimensions and number of color channels amount allocates %zu bytes. That is %zu %s difference\n",
             file_size,
             argv[1],
             image_size,
