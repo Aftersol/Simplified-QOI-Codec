@@ -9,6 +9,7 @@
     - version 1.1.2 (2026-04-16)
         - Fixed underflow if thesize of the raw image is smaller
         than requested image size and number of image channels
+        - Fixed edge case of plural spelling of bytes
         
     - version 1.1.1 (2026-04-13)
         - Modified program to display version info
@@ -154,10 +155,14 @@ int main(int argc, char* argv[])
         size_t size_difference = image_size - file_size;
 
         printf(
-            "%zu bytes are required for the file, %s. Your requested image dimensions and number of color channels amount allocates %zu bytes. That is %zu %s difference\n",
+            "%zu %s are required for the file, %s. Your requested image dimensions and number of color channels amount allocates %zu %s. That is %zu %s difference\n",
             file_size,
+            /* for printing plurals from of the word "byte" */
+            (file_size > 1) ? "bytes" : "byte",
             argv[1],
             image_size,
+            /* for printing plurals from of the word "byte" */
+            (image_size > 1) ? "bytes" : "byte",
             size_difference,
             /* for printing plurals from of the word "byte" */
             (size_difference > 1) ? "bytes" : "byte"
