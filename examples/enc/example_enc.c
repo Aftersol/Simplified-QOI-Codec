@@ -2,7 +2,7 @@
 
     -- example_enc.c -- Reference QOI encoding usage of this library
 
-    -- version 1.1.2 -- revised 2026-04-13
+    -- version 1.1.2 -- revised 2026-04-16
 
     -- Changelog --
     
