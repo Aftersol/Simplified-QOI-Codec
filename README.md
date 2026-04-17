@@ -119,7 +119,7 @@ Thank you to the authors of the source code being used for inspiration for this 
 - [QOI Specification](https://qoiformat.org/qoi-specification.pdf)
 
 ### Example Project That Use This Library
-- [N64 QOI Viewer](https://github.com/Aftersol/n64_qoi_demo)
+- [N64 QOI Viewer](https://github.com/Aftersol/n64_qoi_dec)
 
 ### Other QOI Programs
 - [Mini-QOI (sharaiwi) (decoder only)](https://github.com/shraiwi/mini-qoi)
