@@ -695,7 +695,7 @@ static inline void qoi_dec_diff(qoi_dec_t* dec, uint8_t tag)
 {
     uint8_t diff = tag & QOI_TAG_MASK;
 
-    /* Do some wizardary to get the differences between three color channel  values */
+    /* Do some wizardary to get the differences between three color channel values */
 
     uint8_t red_diff = ((diff >> 4) & 0x03) - 2;
     uint8_t green_diff = ((diff >> 2) & 0x03) - 2;
