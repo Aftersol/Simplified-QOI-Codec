@@ -316,7 +316,7 @@ bool qoi_desc_init(qoi_desc_t *desc)
     desc->colorspace = 0;
 
     return true;
-};
+}
 
 /* Sets the image dimensions of an image for QOI descriptor */
 inline void qoi_set_dimensions(qoi_desc_t* desc, uint32_t width, uint32_t height)
