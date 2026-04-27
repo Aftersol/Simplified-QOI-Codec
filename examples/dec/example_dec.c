@@ -2,10 +2,12 @@
 
     -- example_dec.c -- Reference QOI decoding usage of this library
 
-    -- version 1.1.1 -- revised 2026-04-13
+    -- version 1.1.1 -- revised 2026-04-36
 
     -- Changelog --
-
+    - version 1.1.1 (2026-04-26)
+        - Fixed misspelling for decoder's name
+        
     - version 1.1.1 (2026-04-13)
         - Modified program to display version info
 
@@ -48,12 +50,12 @@
 #define SIMPLIFIED_QOI_IMPLEMENTATION
 #include "sQOI.h"
 
-const char version_number[] = "version 1.1.1";
-const char revised_date[] = "2026-04-13";
+const char version_number[] = "version 1.1.2";
+const char revised_date[] = "2026-04-26";
 
 void print_version()
 {
-    printf("QOI Encoder\nversion: %s -- revised %s\n", version_number, revised_date);
+    printf("QOI Decoder\nversion: %s -- revised %s\n", version_number, revised_date);
 }
 
 void print_help()
