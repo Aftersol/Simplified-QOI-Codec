@@ -2,7 +2,7 @@
 
     -- example_dec.c -- Reference QOI decoding usage of this library
 
-    -- version 1.1.1 -- revised 2026-04-36
+    -- version 1.1.1 -- revised 2026-04-26
 
     -- Changelog --
     - version 1.1.1 (2026-04-26)
