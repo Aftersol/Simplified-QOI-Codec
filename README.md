@@ -110,7 +110,7 @@ This program only outputs raw RGB or RGBA files depending on the amount of chann
 	qoi_dec <input file> <output file>
 ## Software Requirements
  - C99 compiler or C++ compiler
- - [CMake 3.1](https://cmake.org/)
+ - [CMake 3.1](https://cmake.org/) (for building example programs)
 
 ## References
 Thank you to the authors of the source code being used for inspiration for this source code
